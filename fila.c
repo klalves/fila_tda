@@ -54,9 +54,12 @@ int destroy(ppFila pp_fila){
 int enqueue(pFila p_fila, void * p_dado, int tipo_dado, int tam_dado){
     if(p_fila == NULL) return FAIL;
 
-    int end = p_fila->begin + p_fila->queue_size;
-
     if(p_fila->queue_size == p_fila->queue_max_size) return FAIL; /* Queue full */
+
+    int end = p_fila->begin + p_fila->queue_size;
+    if(end >= p_fila->queue_max_size){ /*Wrap around if necessary*/
+        end -= p_fila->queue_max_size;
+    }
 
     p_fila->element_list[end].data = malloc(tam_dado);
 
