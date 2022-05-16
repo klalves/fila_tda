@@ -33,7 +33,9 @@ int init(ppFila pp_fila, int tam_fila, int tam_max_item){
 /*************************/
 int destroy(ppFila pp_fila){
     for(int element_idx = 0; element_idx<(*pp_fila)->queue_max_size; element_idx++){
-        free((*pp_fila)->element_list[element_idx].data); /*Free data of each element*/    
+        if(NULL != (*pp_fila)->element_list[element_idx].data){
+            free((*pp_fila)->element_list[element_idx].data); /*Free data of each element*/
+        }
     }
     free((*pp_fila)->element_list); /*Free element list*/
     free(*pp_fila);
@@ -89,6 +91,7 @@ int dequeue(pFila p_fila, void ** pp_dado, int * p_tipo_dado){
 
     *p_tipo_dado = p_fila->element_list[p_fila->begin].data_type;
     free(p_fila->element_list[p_fila->begin].data); /* Free element memory */
+    p_fila->element_list[p_fila->begin].data = NULL;
 
     p_fila->begin++;
     if(p_fila->begin >= p_fila->queue_max_size) p_fila->begin = 0; /* Wrap around circle queue */
