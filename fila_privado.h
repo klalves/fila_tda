@@ -13,8 +13,8 @@ typedef struct fila_element_t{
 
 typedef struct fila_t{
     fila_element_t * element_list;
+    int queue_max_size;
     int queue_size;
     int begin;
-    int end;
 }fila_t;
 

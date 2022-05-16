@@ -20,9 +20,9 @@ int init(ppFila pp_fila, int tam_fila, int tam_max_item){
     if( (*pp_fila) == NULL) return FAIL;
 
     (*pp_fila)->element_list = malloc(tam_fila * sizeof(fila_element_t));
-    (*pp_fila)->queue_size = tam_fila;
+    (*pp_fila)->queue_max_size = tam_fila;
+    (*pp_fila)->queue_size = 0;
     (*pp_fila)->begin = 0;
-    (*pp_fila)->end = 0;
 
     return SUCCESS;
 }
@@ -32,7 +32,7 @@ int init(ppFila pp_fila, int tam_fila, int tam_max_item){
 /* Destruction operation */
 /*************************/
 int destroy(ppFila pp_fila){
-    for(int element_idx = 0; element_idx<(*pp_fila)->queue_size; element_idx++){
+    for(int element_idx = 0; element_idx<(*pp_fila)->queue_max_size; element_idx++){
         free((*pp_fila)->element_list[element_idx].data); /*Free data of each element*/    
     }
     free((*pp_fila)->element_list); /*Free element list*/
@@ -54,21 +54,20 @@ int destroy(ppFila pp_fila){
 int enqueue(pFila p_fila, void * p_dado, int tipo_dado, int tam_dado){
     if(p_fila == NULL) return FAIL;
 
-    int element_count = pilha_element_count(p_fila);
+    int end = p_fila->begin + p_fila->queue_size;
 
-    if(element_count == p_fila->queue_size) return FAIL; /* Queue full */
+    if(p_fila->queue_size == p_fila->queue_max_size) return FAIL; /* Queue full */
 
-    p_fila->element_list[p_fila->end].data = malloc(tam_dado);
+    p_fila->element_list[end].data = malloc(tam_dado);
 
-    if(NULL == p_fila->element_list[p_fila->end].data) return FAIL; /* Unable to allocate memory for entry */
+    if(NULL == p_fila->element_list[end].data) return FAIL; /* Unable to allocate memory for entry */
 
-    memcpy(p_fila->element_list[p_fila->end].data, p_dado, tam_dado);
+    memcpy(p_fila->element_list[end].data, p_dado, tam_dado);
 
-    p_fila->element_list[p_fila->end].data_size = tam_dado;
-    p_fila->element_list[p_fila->end].data_type = tipo_dado;
+    p_fila->element_list[end].data_size = tam_dado;
+    p_fila->element_list[end].data_type = tipo_dado;
     
-    p_fila->end++;
-    if(p_fila->end > p_fila->queue_size) p_fila->end = 0; /* Wrap around circle queue */
+    p_fila->queue_size++;
 
     return SUCCESS;
 }
@@ -77,13 +76,7 @@ int enqueue(pFila p_fila, void * p_dado, int tipo_dado, int tam_dado){
 int dequeue(pFila p_fila, void ** pp_dado, int * p_tipo_dado){
     if(p_fila == NULL) return FAIL;
 
-    printf("\nDequeue:\n");
-    printf("p_fila->begin: %d\n", p_fila->begin);
-    printf("p_fila->end: %d\n", p_fila->end);
-
-    int element_count = pilha_element_count(p_fila);
-
-    if(element_count == 0) return FAIL; /* Empty Queue */
+    if(p_fila->queue_size == 0) return FAIL; /* Empty Queue */
 
     *pp_dado = malloc(p_fila->element_list[p_fila->begin].data_size);
 
@@ -95,27 +88,14 @@ int dequeue(pFila p_fila, void ** pp_dado, int * p_tipo_dado){
     free(p_fila->element_list[p_fila->begin].data); /* Free element memory */
 
     p_fila->begin++;
-    if(p_fila->begin > p_fila->queue_size) p_fila->begin = 0; /* Wrap around circle queue */
+    if(p_fila->begin >= p_fila->queue_max_size) p_fila->begin = 0; /* Wrap around circle queue */
 
-    printf("p_fila->begin: %d\n", p_fila->begin);
-    printf("p_fila->end: %d\n", p_fila->end);
-    printf("\n");
+    p_fila->queue_size--;
 
     return SUCCESS;
 }
 
 
-/***************************/
-/* Internal handlers       */
-/***************************/
-
-int pilha_element_count(pFila p_fila){
-
-    if(p_fila->end >= p_fila->begin){
-        return p_fila->end - p_fila->begin;
-    }
-    else{
-        return 1 + p_fila->end + (p_fila->queue_size - p_fila->begin);
-    }
-}
-
+/************************/
+/*  Internal handlers  */
+/***********************/

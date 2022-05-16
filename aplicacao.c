@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     printf("\n\nDequeue with queue empty test:\n");
     if(SUCCESS == dequeue(p_fila, &data_reception, &type_get))  exit(1);
     printf("Test OK -> Unable to dequeue as expected.\n");
-
+    
     /* Destruction test */
     printf("\n\nDestruction test:\n");
     if(FAIL == destroy(&p_fila)) exit(1);
